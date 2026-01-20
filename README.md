@@ -6,8 +6,8 @@ Descarga la última versión de python desde [aquí](https://www.python.org/down
 
 ### 2. Crea el entorno virtual y actívalo
 ```powershell
-`python -m venv venv`
-`.\venv\Scripts\Activate.ps1`
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 ```
 
 ### 3. Instala las dependencias
