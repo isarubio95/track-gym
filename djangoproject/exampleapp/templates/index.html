@@ -25,28 +25,37 @@
 
         <h2>Mis Rutinas de Deporte</h2>
         {% if user.actividades.all %}
-            <ul>
-                {% for actividad in user.actividades.all %}
-                    <li>
-                        <strong>{{ actividad.get_tipo_display }}</strong>: 
-                        {{ actividad.duracion_minutos }} minutos 
-                        (Realizada el {{ actividad.fecha|date:"d/m/Y" }})
-                        {% if actividad.comentarios %}
-                            - Comentarios: "{{ actividad.comentarios }}"
-                        {% endif %}
-                        <form action="{% url 'eliminar_actividad' actividad.id %}" method="post" style="display:inline; margin-left: 10px;">
-                            {% csrf_token %}
-                            <button type="submit" onclick="return confirm('¿Seguro que quieres borrar esta actividad?')" 
-                                    style="color: red; border: none; background: none; cursor: pointer; text-decoration: underline;">
-                                Eliminar
-                            </button>
-                        </form>
-                        <a href="{% url 'editar_actividad' actividad.id %}" class="btn-editar">
-                            Editar
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipo de Actividad</th>
+                        <th>Duración (minutos)</th>
+                        <th>Fecha</th>
+                        <th>Comentarios</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for actividad in user.actividades.all %}
+                        <tr>
+                            <td>{{ actividad.get_tipo_display }}</td>
+                            <td>{{ actividad.duracion_minutos }}</td>
+                            <td>{{ actividad.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>{{ actividad.comentarios }}</td>
+                            <td>
+                                <a href="{% url 'editar_actividad' actividad.id %}" class="btn-editar">Editar</a>
+                                <form action="{% url 'eliminar_actividad' actividad.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" onclick="return confirm('¿Seguro que quieres borrar esta actividad?')" 
+                                            style="color: red; border: none; background: none; cursor: pointer; text-decoration: underline;">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
             <p>Aún no has registrado ninguna actividad. ¡Empieza hoy!</p>
         {% endif %}
