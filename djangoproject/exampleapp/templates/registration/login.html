@@ -4,3 +4,8 @@
     {{ form.as_p }}
     <button type="submit">Entrar</button>
 </form>
+<p><a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a></p>
+{% if form.errors %}
+    <p style="color: red;">Nombre de usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.</p>
+{% endif %}
+<a href="{% url 'signup' %}">Crear nuevo usuario</a>

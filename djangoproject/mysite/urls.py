@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
-from exampleapp.views import homeView
+from exampleapp.views import homeView, SignUpView
 import django.contrib.auth.urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", homeView, name="home"),
     path('accounts/', include('django.contrib.auth.urls')),
+    path("accounts/signup/", SignUpView.as_view(), name="signup"),
 ]
