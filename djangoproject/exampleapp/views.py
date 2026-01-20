@@ -1,14 +1,25 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views import generic
 from .forms import ActividadForm
+from .models import Actividad
 
 class SignUpView(generic.CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
+
+@login_required
+def eliminar_actividad(request, actividad_id):
+    # Buscamos la actividad o devolvemos error 404 si no existe
+    actividad = get_object_or_404(Actividad, id=actividad_id, usuario=request.user)
+    if request.method == 'POST':
+        actividad.delete()
+        return redirect('home')
+    # Si se accede por GET (opcional), podrías mostrar una página de confirmación
+    return render(request, "confirmar_borrado.html", {'actividad': actividad})
 
 @login_required
 def homeView(request):

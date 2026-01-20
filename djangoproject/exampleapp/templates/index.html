@@ -31,13 +31,23 @@
                         <strong>{{ actividad.get_tipo_display }}</strong>: 
                         {{ actividad.duracion_minutos }} minutos 
                         (Realizada el {{ actividad.fecha|date:"d/m/Y" }})
+                        {% if actividad.comentarios %}
+                            - Comentarios: "{{ actividad.comentarios }}"
+                        {% endif %}
+                        <form action="{% url 'eliminar_actividad' actividad.id %}" method="post" style="display:inline; margin-left: 10px;">
+                            {% csrf_token %}
+                            <button type="submit" onclick="return confirm('¿Seguro que quieres borrar esta actividad?')" 
+                                    style="color: red; border: none; background: none; cursor: pointer; text-decoration: underline;">
+                                Eliminar
+                            </button>
+                        </form>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
             <p>Aún no has registrado ninguna actividad. ¡Empieza hoy!</p>
         {% endif %}
-        
+
         <section class="nueva-actividad">
             <h3>Registrar nueva rutina</h3>
             <form method="post">
