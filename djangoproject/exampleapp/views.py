@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 from .forms import ActividadForm, DaisySignupForm
 from .models import Actividad
+from django.http import JsonResponse
 
 class SignUpView(generic.CreateView):
     form_class = DaisySignupForm
@@ -46,3 +47,18 @@ def homeView(request):
     else:
         form = ActividadForm()
     return render(request, "index.html", {'form': form})
+
+@login_required
+def rutinas_json(request):
+    actividades = Actividad.objects.filter(usuario=request.user)
+    eventos = []
+    for act in actividades:
+        eventos.append({
+            'id': act.id,
+            'title': act.get_tipo_display(),
+            'start': act.fecha.isoformat(),
+            # Calculamos el fin sumando la duración si quieres que ocupe espacio
+            'backgroundColor': '#570df8',
+            'borderColor': '#570df8',
+        })
+    return JsonResponse(eventos, safe=False)
