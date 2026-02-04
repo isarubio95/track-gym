@@ -13,7 +13,10 @@ python -m venv venv
 ### 3. Instala las dependencias
 `pip install -r requirements.txt`
 
+### 4. Aplicar migraciones
+Es necesario crear las tablas en la base de datos para usuarios y sesiones:
+`python manage.py migrate`
+
 ## Ejecutar aplicación
 ### 1. Lanzar servidor
-`python .\djangoproject\manage.py runserver`
-
+`python manage.py runserver`
