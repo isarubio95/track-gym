@@ -1,16 +1,26 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Actividad
+from .models import Actividad, Ejercicio
 
 class ActividadForm(forms.ModelForm):
     class Meta:
         model = Actividad
-        fields = ['tipo', 'duracion_minutos', 'comentarios', 'fecha']
+        fields = ['titulo', 'comentarios', 'fecha']
         widgets = {
-            'tipo': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'duracion_minutos': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'placeholder': 'Ej: 45'}),
+            'titulo': forms.TextInput(attrs={'class': 'input input-bordered w-full', 'placeholder': 'Ej: Empuje - Pecho/Hombro'}),
             'comentarios': forms.Textarea(attrs={'class': 'textarea textarea-bordered w-full', 'rows': 2}),
             'fecha': forms.DateTimeInput(attrs={'class': 'input input-bordered w-full', 'type': 'datetime-local'}),
+        }
+
+class EjercicioForm(forms.ModelForm):
+    class Meta:
+        model = Ejercicio
+        fields = ['tipo_ejercicio', 'series', 'repeticiones', 'peso_kg']
+        widgets = {
+            'tipo_ejercicio': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'series': forms.NumberInput(attrs={'class': 'input input-bordered w-full'}),
+            'repeticiones': forms.NumberInput(attrs={'class': 'input input-bordered w-full'}),
+            'peso_kg': forms.NumberInput(attrs={'class': 'input input-bordered w-full'}),
         }
 
 class DaisySignupForm(UserCreationForm):

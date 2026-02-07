@@ -7,7 +7,7 @@
     <div class="card w-full max-w-lg bg-base-100 shadow-xl border border-warning/30">
         <div class="card-body">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="card-title text-warning text-2xl">Modificar Rutina</h2>
+                <h2 class="card-title text-warning text-2xl">Editar: {{ actividad.titulo }}</h2>
                 <div class="badge badge-outline opacity-50">{{ actividad.fecha|date:"d/m/Y" }}</div>
             </div>
 
@@ -19,6 +19,17 @@
                         {{ field }}
                     </div>
                 {% endfor %}
+
+                <div class="mt-4 p-4 bg-base-200 rounded-lg">
+                    <h3 class="text-sm font-bold mb-2">Ejercicios en esta sesión:</h3>
+                    <ul class="text-xs space-y-1">
+                        {% for ejercicio in actividad.ejercicios.all %}
+                            <li>• {{ ejercicio.tipo_ejercicio.nombre }}: {{ ejercicio.series }}x{{ ejercicio.repeticiones }} ({{ ejercicio.peso_kg }}kg)</li>
+                        {% empty %}
+                            <li class="opacity-50 italic">Sin ejercicios registrados</li>
+                        {% endfor %}
+                    </ul>
+                </div>
 
                 <div class="card-actions justify-end mt-6">
                     <a href="{% url 'home' %}" class="btn btn-ghost">Cancelar</a>

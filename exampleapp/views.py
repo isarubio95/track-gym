@@ -60,7 +60,7 @@ def rutinas_json(request):
     for act in actividades:
         eventos.append({
             'id': act.id,
-            'title': act.get_tipo_display(),
+            'title': act.titulo,
             'start': act.fecha.isoformat(),
             # Calculamos el fin sumando la duración si quieres que ocupe espacio
             'backgroundColor': '#570df8',
