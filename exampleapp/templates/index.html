@@ -61,7 +61,7 @@
                                     <td class="text-sm opacity-60">{{ actividad.fecha|date:"d/m/Y H:i" }}</td>
                                     <td>
                                         <div class="flex justify-center gap-4">
-                                            <a href="{% url 'editar_actividad' actividad.id %}" class="btn btn-circle btn-xs btn-warning btn-outline">
+                                            <a href="{% url 'editar_actividad' actividad.id %}" onclick="openEditModal(event, this.href)" class="btn btn-circle btn-xs btn-warning btn-outline">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                             </a>
                                             <form action="{% url 'eliminar_actividad' actividad.id %}" method="post" class="inline">
@@ -103,9 +103,9 @@
                     <!-- Formset de Ejercicios -->
                     <div class="divider text-xs opacity-50">Ejercicios</div>
                     {{ formset.management_form }}
-                    <div class="space-y-4">
+                    <div id="ejercicios-container" class="space-y-4">
                         {% for ej_form in formset %}
-                            <div class="p-4 bg-base-200 rounded-xl border border-base-300 space-y-2">
+                            <div class="ejercicio-row p-4 bg-base-200 rounded-xl border border-base-300 space-y-2">
                                 {% for hidden in ej_form.hidden_fields %}{{ hidden }}{% endfor %}
                                 {% for field in ej_form.visible_fields %}
                                     <div class="form-control">
@@ -116,6 +116,21 @@
                             </div>
                         {% endfor %}
                     </div>
+                    
+                    <button type="button" id="add-ejercicio-btn" class="btn btn-sm btn-outline btn-primary w-full mt-2 border-dashed">+ Añadir Ejercicio</button>
+
+                    <!-- Template oculto para nuevos ejercicios -->
+                    <div id="empty-form-template" class="hidden">
+                        <div class="ejercicio-row p-4 bg-base-200 rounded-xl border border-base-300 space-y-2">
+                            {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+                            {% for field in formset.empty_form.visible_fields %}
+                                <div class="form-control">
+                                    <label class="label py-0"><span class="label-text text-[10px] font-bold">{{ field.label }}</span></label>
+                                    {{ field }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
 
                     <button type="submit" class="btn btn-primary btn-block">Guardar</button>
                 </form>
@@ -123,6 +138,15 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Edición -->
+<dialog id="edit_modal" class="modal">
+    <div class="modal-box w-11/12 max-w-2xl bg-base-200 p-0 overflow-hidden">
+        <!-- El contenido se cargará aquí vía AJAX -->
+        <div id="edit_modal_content"></div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -139,7 +163,8 @@
             events: '/api/rutinas/', // Asegúrate de tener esta ruta configurada
             eventColor: '#570df8',
             eventClick: function(info) {
-                window.location.href = "/editar/" + info.event.id + "/";
+                info.jsEvent.preventDefault();
+                openEditModal(null, "/editar/" + info.event.id + "/");
             }
         });
 
@@ -150,6 +175,83 @@
         window.addEventListener('click', () => {
             setTimeout(() => { calendar.updateSize(); }, 50);
         });
+
+        // Lógica para añadir ejercicios dinámicamente
+        const addBtn = document.getElementById('add-ejercicio-btn');
+        const container = document.getElementById('ejercicios-container');
+        const totalForms = document.querySelector('[name$="TOTAL_FORMS"]');
+        const emptyFormTemplate = document.getElementById('empty-form-template');
+
+        addBtn.addEventListener('click', () => {
+            // Validación: comprobar si el último ejercicio tiene datos
+            const rows = container.querySelectorAll('.ejercicio-row');
+            if (rows.length > 0) {
+                const lastRow = rows[rows.length - 1];
+                const inputs = lastRow.querySelectorAll('input:not([type=hidden]), select');
+                let isComplete = true;
+                inputs.forEach(input => {
+                    if (!input.value) isComplete = false;
+                });
+
+                if (!isComplete) {
+                    alert("Por favor, completa el ejercicio actual antes de añadir otro.");
+                    return;
+                }
+            }
+
+            // Crear nuevo formulario reemplazando __prefix__
+            const formCount = parseInt(totalForms.value);
+            const newRowHtml = emptyFormTemplate.innerHTML.replace(/__prefix__/g, formCount);
+            
+            // Insertar en el DOM
+            container.insertAdjacentHTML('beforeend', newRowHtml);
+            
+            // Actualizar contador
+            totalForms.value = formCount + 1;
+        });
     });
+
+    // Función para abrir el modal de edición
+    async function openEditModal(event, url) {
+        if (event) event.preventDefault();
+        
+        const modal = document.getElementById('edit_modal');
+        const content = document.getElementById('edit_modal_content');
+        
+        // Cargar contenido
+        content.innerHTML = '<div class="p-10 text-center"><span class="loading loading-spinner loading-lg text-primary"></span></div>';
+        modal.showModal();
+
+        try {
+            const response = await fetch(url + '?modal=true');
+            const html = await response.text();
+            content.innerHTML = html;
+
+            // Interceptar el envío del formulario dentro del modal
+            const form = content.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    const postResponse = await fetch(url + '?modal=true', { method: 'POST', body: formData });
+                    
+                    if (postResponse.ok) {
+                        const json = await postResponse.json();
+                        if (json.success) {
+                            modal.close();
+                            // Opcional: Mostrar notificación de éxito. 
+                            // No recargamos la página para no perder el formulario de la derecha.
+                        }
+                    } else {
+                        // Si hay errores de validación, recargar el HTML del modal con los errores
+                        content.innerHTML = await postResponse.text();
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando modal:', error);
+            content.innerHTML = '<div class="p-4 text-error">Error al cargar la edición.</div>';
+        }
+    }
 </script>
 {% endblock %}

@@ -20,16 +20,24 @@ class SignUpView(generic.CreateView):
 @login_required
 def editar_actividad(request, actividad_id):
     actividad = get_object_or_404(Actividad, id=actividad_id, usuario=request.user)
+    is_modal = request.GET.get('modal') == 'true'
+
     if request.method == 'POST':
         form = ActividadForm(request.POST, instance=actividad)
         if form.is_valid():
             form.save()
+            if is_modal:
+                # Si es modal, devolvemos JSON para que JS cierre el modal sin recargar
+                return JsonResponse({'success': True})
             return redirect('home')
     else:
         form = ActividadForm(instance=actividad)
+    
     return render(request, 'editar_actividad.html', {
         'form': form,
-        'actividad': actividad
+        'actividad': actividad,
+        'is_modal': is_modal,
+        'base_template': 'base_modal.html' if is_modal else 'base.html'
     })
 
 @login_required

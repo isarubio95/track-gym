@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends base_template|default:'base.html' %}
 
 {% block title %}Editar Actividad{% endblock %}
 
 {% block content %}
-<div class="flex justify-center items-center py-10">
-    <div class="card w-full max-w-lg bg-base-100 shadow-xl border border-warning/30">
+<div class="flex justify-center items-center {% if not is_modal %}py-10{% endif %}">
+    <div class="card w-full {% if not is_modal %}max-w-lg{% endif %} bg-base-100 shadow-xl border border-warning/30">
         <div class="card-body">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="card-title text-warning text-2xl">Editar: {{ actividad.titulo }}</h2>
@@ -32,7 +32,11 @@
                 </div>
 
                 <div class="card-actions justify-end mt-6">
-                    <a href="{% url 'home' %}" class="btn btn-ghost">Cancelar</a>
+                    {% if is_modal %}
+                        <button type="button" class="btn btn-ghost" onclick="edit_modal.close()">Cancelar</button>
+                    {% else %}
+                        <a href="{% url 'home' %}" class="btn btn-ghost">Cancelar</a>
+                    {% endif %}
                     <button type="submit" class="btn btn-warning px-8 text-white">Actualizar</button>
                 </div>
             </form>
