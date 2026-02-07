@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import inlineformset_factory
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Actividad, Ejercicio
 
@@ -22,6 +23,14 @@ class EjercicioForm(forms.ModelForm):
             'repeticiones': forms.NumberInput(attrs={'class': 'input input-bordered w-full'}),
             'peso_kg': forms.NumberInput(attrs={'class': 'input input-bordered w-full'}),
         }
+
+EjercicioFormSet = inlineformset_factory(
+    Actividad,
+    Ejercicio,
+    form=EjercicioForm,
+    extra=1,  # Número de ejercicios vacíos que aparecen por defecto
+    can_delete=True
+)
 
 class DaisySignupForm(UserCreationForm):
     def __init__(self, *args, **kwargs):

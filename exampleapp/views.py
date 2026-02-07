@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
-from .forms import ActividadForm, DaisySignupForm
+from .forms import ActividadForm, DaisySignupForm, EjercicioFormSet
 from .models import Actividad
 from django.http import JsonResponse
 
@@ -44,14 +44,18 @@ def eliminar_actividad(request, actividad_id):
 def homeView(request):
     if request.method == 'POST':
         form = ActividadForm(request.POST)
-        if form.is_valid():
+        formset = EjercicioFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
             actividad = form.save(commit=False)
             actividad.usuario = request.user  # Vinculamos la actividad al usuario actual
             actividad.save()
+            formset.instance = actividad
+            formset.save()
             return redirect('home')
     else:
         form = ActividadForm()
-    return render(request, "index.html", {'form': form})
+        formset = EjercicioFormSet()
+    return render(request, "index.html", {'form': form, 'formset': formset})
 
 @login_required
 def rutinas_json(request):

@@ -92,12 +92,31 @@
                 <h3 class="card-title text-primary">Nueva Rutina</h3>
                 <form method="post" class="space-y-4">
                     {% csrf_token %}
+                    <!-- Datos de la Sesión -->
                     {% for field in form %}
                         <div class="form-control">
                             <label class="label font-bold text-xs opacity-70">{{ field.label }}</label>
                             {{ field }}
                         </div>
                     {% endfor %}
+
+                    <!-- Formset de Ejercicios -->
+                    <div class="divider text-xs opacity-50">Ejercicios</div>
+                    {{ formset.management_form }}
+                    <div class="space-y-4">
+                        {% for ej_form in formset %}
+                            <div class="p-4 bg-base-200 rounded-xl border border-base-300 space-y-2">
+                                {% for hidden in ej_form.hidden_fields %}{{ hidden }}{% endfor %}
+                                {% for field in ej_form.visible_fields %}
+                                    <div class="form-control">
+                                        <label class="label py-0"><span class="label-text text-[10px] font-bold">{{ field.label }}</span></label>
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
                     <button type="submit" class="btn btn-primary btn-block">Guardar</button>
                 </form>
             </div>
