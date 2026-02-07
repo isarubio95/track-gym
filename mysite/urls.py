@@ -4,6 +4,8 @@ from exampleapp.views import homeView, SignUpView, eliminar_actividad, editar_ac
 import django.contrib.auth.urls
 from django.contrib.auth import views as auth_views
 from exampleapp.forms import DaisyLoginForm
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -19,3 +21,6 @@ urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
     path('api/rutinas/', rutinas_json, name='rutinas_json'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
