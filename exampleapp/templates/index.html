@@ -47,6 +47,7 @@
         from { opacity: 0; }
         to { opacity: 1; }
     }
+
 </style>
 {% endblock %}
 
@@ -73,7 +74,7 @@
         <div class="lg:col-span-2">
             
             <div x-show="view === 'calendar'" x-transition class="card bg-base-100 shadow-xl border border-base-300">
-                <div class="card-body p-4">
+                <div id="calendar-container" class="card-body p-4">
                     <div id="calendar" style="min-height: 600px;"></div>
                 </div>
             </div>
